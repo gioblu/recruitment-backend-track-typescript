@@ -36,29 +36,14 @@ This is a **production-grade Dockerized TypeScript-based Invoice Management API*
 
 ## Technology Stack
 
-### Backend Framework
-Express.js, TypeScript, Node.js
-
-### Database & ORM
-PostgreSQL, Prisma, Prisma Client
-
-### Authentication & Security
-jsonwebtoken, bcryptjs, cookie-parser
-
-### Logging & Monitoring
-pino, pino-http, pino-pretty
-
-### API Documentation
-swagger-ui-express, zod-openapi
-
-### Validation
-zod, express-rate-limit
-
-### Testing
-Jest, ts-jest, supertest
-
-### Infrastructure
-Docker, Docker Compose, Nginx
+- **Backend Framework:** Express.js, TypeScript, Node.js
+- **Database & ORM:** PostgreSQL, Prisma, Prisma Client
+- **Authentication & Security:** jsonwebtoken, bcryptjs, cookie-parser
+- **Logging & Monitoring:** pino, pino-http, pino-pretty
+- **API Documentation:** swagger-ui-express, zod-openapi
+- **Validation:** zod, express-rate-limit
+- **Testing:** Jest, ts-jest, supertest
+- **Infrastructure:** Docker, Docker Compose, Nginx
 
 ---
 
