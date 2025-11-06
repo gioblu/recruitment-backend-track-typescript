@@ -17,23 +17,26 @@ app.use(cookieParser());
 app.use('/auth', authRouter);
 
 describe('Auth routes - integration', () => {
+  // Use timestamp to ensure unique emails across test runs
+  const testId = Date.now();
+
   beforeAll(async () => {
     // Clean up test data before tests
     await prisma.user.deleteMany({
-      where: { email: { endsWith: '@auth.com' } }
+      where: { email: { contains: `auth-${testId}` } }
     });
   });
 
   afterAll(async () => {
     // Clean up test data after tests
     await prisma.user.deleteMany({
-      where: { email: { endsWith: '@auth.com' } }
+      where: { email: { contains: `auth-${testId}` } }
     });
     await prisma.$disconnect();
   });
 
   const userPayload = {
-    email: 'eve@auth.com',
+    email: `eve-auth-${testId}@test.com`,
     password: 'SuperSecret123!',
     name: 'Eve',
   };

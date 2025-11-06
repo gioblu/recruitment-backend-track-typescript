@@ -28,9 +28,10 @@ describe('Invoice controller - integration', () => {
   let authCookie = '';
   let createdId: number;
   let taxProfileId: number;
+  const testId = Date.now();
   
   const userPayload = {
-    email: `invoice-test-${Date.now()}@invoice.com`,
+    email: `invoice-test-${testId}@test.com`,
     password: 'SuperSecret123!',
     name: 'Invoice Test User',
   };
@@ -48,9 +49,13 @@ describe('Invoice controller - integration', () => {
   };
 
   beforeAll(async () => {
-    await prisma.invoice.deleteMany();
-    await prisma.taxProfile.deleteMany();
-    await prisma.user.deleteMany();
+    // Only clean up our test data
+    const user = await prisma.user.findUnique({ where: { email: userPayload.email } });
+    if (user) {
+      await prisma.invoice.deleteMany({ where: { taxProfile: { userId: user.id } } });
+      await prisma.taxProfile.deleteMany({ where: { userId: user.id } });
+      await prisma.user.delete({ where: { id: user.id } });
+    }
 
     // Create user and get auth cookie
     const regRes = await request(app)
@@ -61,12 +66,12 @@ describe('Invoice controller - integration', () => {
     expect(authCookie).toBeTruthy();
 
     // Create tax profile for the user
-    const user = await prisma.user.findUnique({ where: { email: userPayload.email } });
-    expect(user).toBeTruthy();
+    const newUser = await prisma.user.findUnique({ where: { email: userPayload.email } });
+    expect(newUser).toBeTruthy();
     const taxProfile = await prisma.taxProfile.create({
       data: {
         ...taxProfilePayload,
-        userId: user!.id,
+        userId: newUser!.id,
       },
     });
     taxProfileId = taxProfile.id;
@@ -74,11 +79,13 @@ describe('Invoice controller - integration', () => {
   });
 
   afterAll(async () => {
-    await prisma.invoice.deleteMany();
-    await prisma.taxProfile.deleteMany();
-    await prisma.user.deleteMany({
-        where: { email: { endsWith: '@invoice.com' } }
-    });
+    // Only clean up our test data
+    const user = await prisma.user.findUnique({ where: { email: userPayload.email } });
+    if (user) {
+      await prisma.invoice.deleteMany({ where: { taxProfile: { userId: user.id } } });
+      await prisma.taxProfile.deleteMany({ where: { userId: user.id } });
+      await prisma.user.delete({ where: { id: user.id } });
+    }
     await prisma.$disconnect();
   });
 

@@ -26,8 +26,9 @@ function getAuthCookie(res: request.Response) {
 }
 
 /*** Test data ***/
+const testId = Date.now();
 const userPayload = {
-  email: 'alice@example.com',
+  email: `alice-user-${testId}@test.com`,
   password: 'SuperSecret123!',
   name: 'Alice',
 };
@@ -37,11 +38,15 @@ describe('User controller - integration', () => {
   let createdUserId: number;
 
   beforeAll(async () => {
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({
+      where: { email: { contains: `user-${testId}` } }
+    });
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({
+      where: { email: { contains: `user-${testId}` } }
+    });
     await prisma.$disconnect();
   });
 

@@ -5,6 +5,7 @@ module.exports = {
   maxWorkers: 1,  // Run tests sequentially to prevent race conditions with shared database
   testMatch: ['**/tests/**/*.test.ts', '**/tests/**/*.spec.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testSequencer: '<rootDir>/jest.sequencer.js',  // Custom test file ordering
   setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
