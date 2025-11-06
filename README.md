@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a **Dockerized TypeScript-based Invoice Management API** that provides endpoints to manage users, tax profiles, and invoices. Built with Express.js using the MVC architecture, it includes automated tests, complete Docker support, and auto-generated OpenAPI/Swagger documentation.
+This is a **Dockerized TypeScript-based Invoice Management API** that provides endpoints to manage users, tax profiles, and invoices. Built with Express.js using the MVC architecture, it includes automated tests, complete Docker support, and auto-generated OpenAPI/Swagger documentation. This software is just an evaluation exercise for candidates willing to test their back-end capabilities. Do not use this in production!  
 
 **Key Features:**
 - ✅ Complete CRUD operations for Users, Tax Profiles, and Invoices 
