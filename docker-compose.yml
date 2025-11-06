@@ -1,0 +1,111 @@
+version: '3.9'
+
+networks:
+  prod:
+  test:
+services:
+
+  # Production backend
+  backend:
+    networks: [prod]
+    build: .
+    container_name: invoice-backend
+    env_file: .env               
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      backend-test:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    command: >
+        sh -c "npx prisma migrate deploy && node dist/src/index.js"
+
+  # Production database
+  db:
+    networks: [prod]
+    image: postgres:15-alpine
+    container_name: invoice-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: invoice_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d invoice_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Test backend (same image, but with .env.test)
+  backend-test:
+    networks: [test]
+    build: .
+    container_name: invoice-backend-test
+    env_file: .env.test
+    ports: []
+    restart: "no"
+      # run migrations, then the test command
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        npm run test
+      "
+    depends_on:
+      test-db:
+        condition: service_healthy
+
+  # Test database – isolated from production
+  test-db:
+    networks: [test]
+    image: postgres:15-alpine
+    container_name: invoice-db-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: invoice_test_db
+    volumes:
+      - test-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d invoice_test_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # optional: expose a UI like pgAdmin for dev convenience
+  pgadmin: 
+    networks: [test]
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@example.com
+      PGADMIN_DEFAULT_PASSWORD: devpass
+    depends_on:
+      test-db:
+        condition: service_started
+      backend-test: 
+        condition: service_completed_successfully
+
+  # Nginx 
+  nginx:
+    image: nginx:stable-alpine
+    container_name: invoice-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks: [prod]
+    depends_on:
+      backend: 
+        condition: service_started   
+
+volumes:
+  pgdata:
+  test-pgdata:
